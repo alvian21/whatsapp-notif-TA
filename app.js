@@ -127,12 +127,10 @@ async function getInfo() {
 
 app.post('/kirim', (req, res) => {
     const number = req.body.number;
-    const message = req.body.message;
+    const message = "Kemahasiswaan Universitas Dinamika, Anda mendapatkan feedback dari reviewer";
     // const pesanList = `Kemahasiswaan Universitas Dinamika %0a ` + message
-    const pesanList = [
-        "Kemahasiswaan Universitas Dinamika"
-    ]
-    client.sendMessage(number, pesanList).then(response => {
+   
+    client.sendMessage(number, message).then(response => {
         res.status(200).json({
             status: true,
             response: response
