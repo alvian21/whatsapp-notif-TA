@@ -171,6 +171,6 @@ app.post('/info', (req, res) => {
 
 
 
-server.listen(9000, function () {
+server.listen('0.0.0.0', function () {
     console.log('app running' + 9000);
 })
