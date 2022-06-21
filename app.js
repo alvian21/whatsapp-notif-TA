@@ -37,12 +37,9 @@ const io = socketIO(server, {
         allowedHeaders: ["my-custom-header"],
         credentials: true
     },
-
-
-
 }).of('/' + key);
 app.use(express.json())
-app.use(cors(corsOptions))
+app.use(cors())
 
 
 app.use(express.urlencoded({
