@@ -23,7 +23,10 @@ const io = socketIO(server, {
         origin: "http://127.0.0.1:8000",
         methods: ["GET", "POST"],
         credentials: true
-    }
+    },
+    log: false,
+    agent: false,
+    origins: '*:*'
 }).of('/' + key);
 app.use(express.json())
 app.use(cors())
@@ -130,7 +133,7 @@ app.post('/kirim', (req, res) => {
     const number = req.body.number;
     const message = "Kemahasiswaan Universitas Dinamika, Anda mendapatkan feedback dari reviewer";
     // const pesanList = `Kemahasiswaan Universitas Dinamika %0a ` + message
-   
+
     client.sendMessage(number, message).then(response => {
         res.status(200).json({
             status: true,
