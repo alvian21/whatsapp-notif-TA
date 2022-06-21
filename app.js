@@ -101,7 +101,7 @@ client.initialize();
 
 io.on('connection', function (socket) {
     socket.emit('message', 'connectingg....');
-
+    console.log(socket.conn.transport.name);
     client.on('qr', (qr) => {
         // Generate and scan this code with your phone
         console.log('QR RECEIVED', qr);
