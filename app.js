@@ -16,6 +16,17 @@ const {
 } = require('express');
 const clientController = require('./controllers/client')
 const app = express()
+const whitelist = ['http://127.0.0.1:8000'];
+const corsOptions = {
+    credentials: true, // This is important.
+    origin: (origin, callback) => {
+        if (whitelist.includes(origin))
+            return callback(null, true)
+
+        callback(new Error('Not allowed by CORS'));
+    }
+}
+
 const server = http.createServer(app);
 const key = '48A061273FCD8B758D7E94E15AFC6789139FDD33EECB1E4B0CBE7AAEA28F4295'
 const io = socketIO(server, {
@@ -31,21 +42,8 @@ const io = socketIO(server, {
 
 }).of('/' + key);
 app.use(express.json())
-app.use(cors())
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Credentials", true);
-    res.header("Access-Control-Allow-Origin", req.headers.origin);
-    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-    res.header(
-        "Access-Control-Allow-Headers",
-        "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
-    );
-    if ("OPTIONS" == req.method) {
-        res.send(200);
-    } else {
-        next();
-    }
-});
+app.use(cors(corsOptions))
+
 
 app.use(express.urlencoded({
     extended: true
