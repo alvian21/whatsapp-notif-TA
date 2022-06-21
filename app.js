@@ -21,7 +21,8 @@ const key = '48A061273FCD8B758D7E94E15AFC6789139FDD33EECB1E4B0CBE7AAEA28F4295'
 const io = socketIO(server, {
     cors: {
         origin: "http://127.0.0.1:8000",
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST"],
+        credentials: true
     }
 }).of('/' + key);
 app.use(express.json())
