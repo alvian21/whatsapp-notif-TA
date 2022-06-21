@@ -20,12 +20,13 @@ const server = http.createServer(app);
 const key = '48A061273FCD8B758D7E94E15AFC6789139FDD33EECB1E4B0CBE7AAEA28F4295'
 const io = socketIO(server, {
     cors: {
-        log: false,
-        agent: false,
         origins: '*:*',
         methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
         credentials: true
     },
+
+
 
 }).of('/' + key);
 app.use(express.json())
