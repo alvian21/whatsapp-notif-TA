@@ -1,3 +1,4 @@
+
 const {
     Client,
     LocalAuth,
@@ -10,11 +11,16 @@ const socketIO = require('socket.io');
 const http = require('http');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
+
 const cors = require('cors')
+const Whatsapps = require('./config');
 const {
     response
 } = require('express');
-const clientController = require('./controllers/client')
+const clientController = require('./controllers/client');
+const {
+    url
+} = require('inspector');
 const app = express()
 const whitelist = ['http://127.0.0.1:8000'];
 const corsOptions = {
@@ -46,30 +52,22 @@ app.use(express.urlencoded({
     extended: true
 }))
 
-// var news = io.on('connection', function (socket) {
-//     clientController.connection_client(news, socket)
-// })
-
 
 const SESSION_FILE_PATH = './whatsapp-session.json';
 let sessionCfg;
-// if (fs.existsSync(SESSION_FILE_PATH)) {
-//     sessionCfg = require(SESSION_FILE_PATH);
-// }
-
 
 const client = new Client({
     puppeteer: {
         headless: true,
-        // args: [
-        //     '--no-sandbox',
-        //     '--disable-setuid-sandbox',
-        //     '--disable-dev-shm-usage',
-        //     '--disable-accelerated-2d-canvas',
-        //     '--no-first-run',
-        //     '--no-zygote',
-        //     '--disable-gpu'
-        // ],
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ],
     },
     authStrategy: new LocalAuth()
 });
@@ -101,15 +99,15 @@ client.initialize();
 
 io.on('connection', function (socket) {
     socket.emit('message', 'connectingg....');
-    console.log(socket.conn.transport.name);
-    client.on('qr', (qr) => {
-        // Generate and scan this code with your phone
-        console.log('QR RECEIVED', qr);
-        qrcode.toDataURL(qr, (err, url) => {
-            socket.emit('qr', url)
-            socket.emit('message', 'qr code received, scan please!')
-        })
-    });
+
+    // client.on('qr', (qr) => {
+    //     // Generate and scan this code with your phone
+    //     console.log('QR RECEIVED', qr);
+    //     qrcode.toDataURL(qr, (err, url) => {
+    //         socket.emit('qr', url)
+    //         socket.emit('message', 'qr code received, scan please!')
+    //     })
+    // });
 
     client.on('ready', () => {
         socket.emit('message', 'whatsapp is ready!')
@@ -122,8 +120,6 @@ io.on('connection', function (socket) {
     });
     client.on('disconnected', (reason) => {
         socket.emit('message', 'Whatsapp is disconnected!');
-
-
         client.initialize();
     });
 
@@ -141,10 +137,24 @@ async function getInfo() {
     return info;
 }
 
+
+client.on('qr', (qr) => {
+    console.log('QR RECEIVED', qr);
+    qrcode.toDataURL(qr, async (err, url) => {
+        const data = {
+            qrcode:url,
+            dateAdded: new Date()
+        }
+        await Whatsapps.add(data)
+    })
+})
+
+
+
 app.post('/kirim', (req, res) => {
     const number = req.body.number;
     const message = "Kemahasiswaan Universitas Dinamika, Anda mendapatkan feedback dari reviewer";
-    // const pesanList = `Kemahasiswaan Universitas Dinamika %0a ` + message
+
 
     client.sendMessage(number, message).then(response => {
         res.status(200).json({
@@ -158,6 +168,10 @@ app.post('/kirim', (req, res) => {
         })
     })
 })
+
+
+
+
 
 
 app.post('/info', (req, res) => {
