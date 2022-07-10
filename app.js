@@ -1,4 +1,3 @@
-
 const {
     Client,
     LocalAuth,
@@ -57,6 +56,7 @@ const SESSION_FILE_PATH = './whatsapp-session.json';
 let sessionCfg;
 
 const client = new Client({
+    restartOnAuthFail: true,
     puppeteer: {
         headless: true,
         args: [
@@ -142,12 +142,69 @@ client.on('qr', (qr) => {
     console.log('QR RECEIVED', qr);
     qrcode.toDataURL(qr, async (err, url) => {
         const data = {
-            qrcode:url,
-            dateAdded: new Date()
+            qrcode: url,
+            dateAdded: new Date(),
+            status: false,
+            data: 'Silahkan scan kembali'
         }
         await Whatsapps.add(data)
     })
 })
+
+client.on('ready', () => {
+    const data = {
+        qrcode: null,
+        dateAdded: new Date(),
+        status: true,
+        data: 'login'
+    }
+    Whatsapps.add(data)
+});
+
+
+client.on('authenticated', () => {
+    const data = {
+        qrcode: null,
+        dateAdded: new Date(),
+        status: true,
+        data: 'auth'
+    }
+    Whatsapps.add(data)
+});
+
+client.on('auth_failure', function (session) {
+    const data = {
+        qrcode: null,
+        dateAdded: new Date(),
+        status: false,
+        data: 'Login gagal, silahkan reload halaman dan ulangi kembali'
+    }
+    Whatsapps.add(data)
+});
+client.on('disconnected', (reason) => {
+    client.destroy();
+    client.initialize();
+    const data = {
+        qrcode: null,
+        dateAdded: new Date(),
+        status: false,
+        data: 'logout'
+    }
+    Whatsapps.add(data)
+});
+
+
+app.post('/logout', (req, res) => {
+    client.logout();
+    client.destroy();
+    client.initialize();
+
+    res.status(200).json({
+        status: true,
+    })
+
+})
+
 
 
 
