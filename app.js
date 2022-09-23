@@ -206,12 +206,12 @@ app.post('/logout', (req, res) => {
 })
 
 
-
-
 app.post('/kirim', (req, res) => {
-    const number = req.body.number;
-    const message = "Kemahasiswaan Universitas Dinamika, Anda mendapatkan feedback dari reviewer";
-
+    let number = req.body.number
+    let message = req.body.message
+    if (message == null) {
+        message = "Kemahasiswaan Universitas Dinamika, Anda mendapatkan feedback dari reviewer"
+    }
 
     client.sendMessage(number, message).then(response => {
         res.status(200).json({
@@ -219,16 +219,13 @@ app.post('/kirim', (req, res) => {
             response: response
         })
     }).catch(err => {
+        console.error(err)
         res.status(500).json({
             status: false,
-            response: err
+            response: err.toString()
         })
     })
 })
-
-
-
-
 
 
 app.post('/info', (req, res) => {
@@ -251,10 +248,7 @@ app.post('/info', (req, res) => {
             status: false
         })
     }
-
-
 })
-
 
 
 server.listen(9000, function () {
